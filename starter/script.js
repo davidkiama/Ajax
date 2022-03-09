@@ -28,7 +28,14 @@ const renderHtml = function (data) {
     `;
 
   countriesContainer.insertAdjacentHTML('beforeend', country);
-  countriesContainer.style.opacity = 1; //For smooth transition
+  //refactor  code below to have it in the .finally()
+  // countriesContainer.style.opacity = 1; //For smooth transition
+};
+
+const renderError = function (msg) {
+  countriesContainer.insertAdjacentText('beforeend', msg);
+  //refactor  code below to have it in the .finally()
+  // countriesContainer.style.opacity = 1; //For smooth transition
 };
 
 // const getCountry = function (countryName) {
@@ -106,7 +113,43 @@ const getCountry = function (country) {
       return fetch(`https://restcountries.com/v3.1/alpha/${neighbours[0]}`);
     })
     .then(response => response.json())
-    .then(data => renderHtml(data[0]));
+    .then(data => renderHtml(data[0]))
+    .catch(err => {
+      console.log(`${err}`);
+      renderError(`Something went wrong ${err.message}`);
+    })
+    .finally(() => (countriesContainer.style.opacity = 1));
 };
 
-getCountry('kenya');
+btn.addEventListener('click', function () {
+  getCountry('kenya');
+});
+
+//Handling errors
+//There are two ways of handling errors in the fetch API
+
+// 1. Add another call back on the then method
+
+// btn.addEventListener('click', function () {
+//   fetch(`https://restcountries.com/v3.1/name/${countryName}`).then(
+//     res => res.json().then(data => renderHtml(data[0])),
+//     err => alert(err)
+//   );
+// });
+
+// 2. Chain a catch method at the end
+
+// btn.addEventListener('click', function () {
+//   fetch(`https://restcountries.com/v3.1/name/${countryName}`)
+//     .then(res => res.json())
+//     .then(data => renderHtml(data[0]))
+//     .catch(err => {
+//       console.log(`${err}`);
+//       renderError(`Something went wrong ${err.message}`);
+//     });
+// });
+
+//Recap:
+// .then() method is called if the promise is fulfilled
+// .catch() method is called if the promise is rejected
+// .finall() method is called whether promise is fullfilled or rejected
