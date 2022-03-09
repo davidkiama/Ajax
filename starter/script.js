@@ -5,6 +5,8 @@ const countriesContainer = document.querySelector('.countries');
 
 ///////////////////////////////////////
 
+//Call back hell
+
 const rendeHtml = function (data) {
   const country = `
     <article class="country">
@@ -37,6 +39,25 @@ const getCountry = function (countryName) {
   request.addEventListener('load', function () {
     const [data] = JSON.parse(this.responseText);
     rendeHtml(data);
+
+    const neighbours = data.borders;
+    if (!neighbours) {
+      return;
+    }
+
+    neighbours.forEach(coutryCode => {
+      const requestNeigh = new XMLHttpRequest();
+      requestNeigh.open(
+        'Get',
+        `https://restcountries.com/v3.1/alpha/${coutryCode}`
+      );
+      requestNeigh.send();
+
+      requestNeigh.addEventListener('load', function () {
+        const [dataNeigh] = JSON.parse(this.responseText);
+        rendeHtml(dataNeigh);
+      });
+    });
   });
 };
 
