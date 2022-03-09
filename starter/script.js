@@ -7,7 +7,7 @@ const countriesContainer = document.querySelector('.countries');
 
 //Call back hell
 
-const rendeHtml = function (data) {
+const renderHtml = function (data) {
   const country = `
     <article class="country">
         <img class="country__img" src="${data.flags.svg}" />
@@ -31,34 +31,68 @@ const rendeHtml = function (data) {
   countriesContainer.style.opacity = 1; //For smooth transition
 };
 
-const getCountry = function (countryName) {
-  const request = new XMLHttpRequest();
-  request.open('Get', `https://restcountries.com/v3.1/name/${countryName}`);
-  request.send();
+// const getCountry = function (countryName) {
+//   const request = new XMLHttpRequest();
+//   request.open('Get', `https://restcountries.com/v3.1/name/${countryName}`);
+//   request.send();
 
-  request.addEventListener('load', function () {
-    const [data] = JSON.parse(this.responseText);
-    rendeHtml(data);
+//   request.addEventListener('load', function () {
+//     const [data] = JSON.parse(this.responseText);
+//     renderHtml(data);
 
-    const neighbours = data.borders;
-    if (!neighbours) {
-      return;
-    }
+//     const neighbours = data.borders;
+//     if (!neighbours) {
+//       return;
+//     }
 
-    neighbours.forEach(coutryCode => {
-      const requestNeigh = new XMLHttpRequest();
-      requestNeigh.open(
-        'Get',
-        `https://restcountries.com/v3.1/alpha/${coutryCode}`
-      );
-      requestNeigh.send();
+//     neighbours.forEach(coutryCode => {
+//       const requestNeigh = new XMLHttpRequest();
+//       requestNeigh.open(
+//         'Get',
+//         `https://restcountries.com/v3.1/alpha/${coutryCode}`
+//       );
+//       requestNeigh.send();
 
-      requestNeigh.addEventListener('load', function () {
-        const [dataNeigh] = JSON.parse(this.responseText);
-        rendeHtml(dataNeigh);
-      });
-    });
-  });
+//       requestNeigh.addEventListener('load', function () {
+//         const [dataNeigh] = JSON.parse(this.responseText);
+//         renderHtml(dataNeigh);
+//       });
+//     });
+//   });
+// };
+
+// getCountry('germany');
+
+///////////////////////////////////////
+// Promises. Fetch API
+
+const countryName = 'kenya';
+const request = fetch(`https://restcountries.com/v3.1/name/${countryName}`);
+
+/*
+.then() method is available to all promises
+.json() method is availabe to all responses on the fetch method
+        Its also an asynchronous function. It also returns a promise
+
+*/
+
+// const getCountry = function (country) {
+//   fetch(`https://restcountries.com/v3.1/name/${country}`)
+//     .then(function (response) {
+//       return response.json();
+//     })
+//     .then(function (data) {
+//       // data passed in is an array with one object
+//       [data] = data;
+//       renderHtml(data);
+//     });
+// };
+
+// same as above but with arrows
+const getCountry = function (country) {
+  fetch(`https://restcountries.com/v3.1/name/${country}`)
+    .then(response => response.json())
+    .then(data => renderHtml(data[0]));
 };
 
-getCountry('germany');
+getCountry('kenya');
