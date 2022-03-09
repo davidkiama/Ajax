@@ -45,11 +45,11 @@ const renderHtml = function (data) {
 //       return;
 //     }
 
-//     neighbours.forEach(coutryCode => {
+//     neighbours.forEach(countryCode => {
 //       const requestNeigh = new XMLHttpRequest();
 //       requestNeigh.open(
 //         'Get',
-//         `https://restcountries.com/v3.1/alpha/${coutryCode}`
+//         `https://restcountries.com/v3.1/alpha/${countryCode}`
 //       );
 //       requestNeigh.send();
 
@@ -91,6 +91,20 @@ const request = fetch(`https://restcountries.com/v3.1/name/${countryName}`);
 // same as above but with arrows
 const getCountry = function (country) {
   fetch(`https://restcountries.com/v3.1/name/${country}`)
+    .then(response => response.json())
+    .then(data => {
+      renderHtml(data[0]);
+
+      const neighbours = data[0].borders;
+      if (!neighbours) return;
+
+      // UNABLE TO LOOP AND FETCH
+      // neighbours.forEach(countryCode => {
+      //   return fetch(`https://restcountries.com/v3.1/alpha/${countryCode}`);
+      // });
+
+      return fetch(`https://restcountries.com/v3.1/alpha/${neighbours[0]}`);
+    })
     .then(response => response.json())
     .then(data => renderHtml(data[0]));
 };
