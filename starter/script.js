@@ -7,9 +7,9 @@ const countriesContainer = document.querySelector('.countries');
 
 //Call back hell
 
-const renderHtml = function (data) {
+const renderHtml = function (data, className = '') {
   const country = `
-    <article class="country">
+    <article class="country ${className}">
         <img class="country__img" src="${data.flags.svg}" />
         <div class="country__data">
         <h3 class="country__name">${data.name.common}</h3>
@@ -156,25 +156,58 @@ const request = fetch(`https://restcountries.com/v3.1/name/${countryName}`);
 
 //Throwing errors manually
 
+// const getCountry = function (country) {
+//   fetch(`https://restcountries.com/v3.1/name/${country}`)
+//     .then(response => {
+//       if (!response.ok) {
+//         //we create the error that will propagate down to the catch method
+//         throw new Error(`Page not found. (Error ${response.status})`);
+//       }
+//       return response.json();
+//     })
+//     .then(data => {
+//       renderHtml(data[0]);
+
+//       const neighbours = data[0].borders;
+//       if (!neighbours) return;
+
+//       return fetch(`https://restcountries.com/v3.1/alpha/${neighbours[0]}`);
+//     })
+//     .then(response => response.json())
+//     .then(data => renderHtml(data[0]))
+//     .catch(err => {
+//       console.log(`${err}`);
+//       renderError(`Something went wrong ${err.message}`);
+//     })
+//     .finally(() => (countriesContainer.style.opacity = 1));
+// };
+
+//Use of a helper function
+
+const getJSON = function (url, errorMsg = 'Country not found') {
+  return fetch(url).then(response => {
+    if (!response.ok) {
+      //we create the error that will propagate down to the catch method
+      throw new Error(`${errorMsg}. (Error ${response.status})`);
+    }
+    return response.json();
+  });
+};
+
 const getCountry = function (country) {
-  fetch(`https://restcountries.com/v3.1/name/${country}`)
-    .then(response => {
-      if (!response.ok) {
-        //we create the error that will propagate down to the catch method
-        throw new Error(`Page not found. (Error ${response.status})`);
-      }
-      return response.json();
-    })
+  getJSON(`https://restcountries.com/v3.1/name/${country}`)
     .then(data => {
       renderHtml(data[0]);
 
       const neighbours = data[0].borders;
-      if (!neighbours) return;
 
-      return fetch(`https://restcountries.com/v3.1/alpha/${neighbours[0]}`);
+      //create a specific error if country has no neighbours
+      if (!neighbours) throw new Error('No neighbour for this one');
+
+      // return getJSON(`https://restcountries.com/v3.1/alpha/rfrfrfsd`); Will catch this error too
+      return getJSON(`https://restcountries.com/v3.1/alpha/${neighbours[0]}`);
     })
-    .then(response => response.json())
-    .then(data => renderHtml(data[0]))
+    .then(data => renderHtml(data[0], 'neighbour'))
     .catch(err => {
       console.log(`${err}`);
       renderError(`Something went wrong ${err.message}`);
@@ -183,5 +216,5 @@ const getCountry = function (country) {
 };
 
 btn.addEventListener('click', function () {
-  getCountry('kekfjrfrkfnya'); //non-existent country
+  getCountry('Kenya'); //non-existent country
 });
