@@ -291,7 +291,7 @@ const getCountry = function (country) {
     .then(data => renderHtml(data[0], 'neighbour'))
     .catch(err => {
       console.log(`${err}`);
-      renderError(`Something went wrong ${err.message}`);
+      renderError(` ${err.message}`);
     })
     .finally(() => (countriesContainer.style.opacity = 1));
 };
@@ -299,13 +299,18 @@ const getCountry = function (country) {
 //Solution
 let auth = '55452033286555294869x94399';
 const whereAmI = function (lat, lng) {
-  fetch(`https://geocode.xyz/${lat},${lng}}?geoit=json&auth=${auth}`)
+  fetch(`https://geocode.xyz/${lat},${lng}}?geoit=json&`)
     .then(response => {
+      if (!response.ok) throw new Error('Too many requests');
       return response.json();
     })
     .then(data => {
-      console.log(`You are in ${data.state}, ${data.country}`);
+      console.log(`You are in ${data.city}, ${data.country}`);
       return data.country;
+    })
+    .catch(err => {
+      renderError(`${err.message}`);
+      return;
     })
     .then(country => getCountry(country));
 };
