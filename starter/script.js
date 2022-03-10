@@ -96,34 +96,34 @@ const request = fetch(`https://restcountries.com/v3.1/name/${countryName}`);
 // };
 
 // same as above but with arrows
-const getCountry = function (country) {
-  fetch(`https://restcountries.com/v3.1/name/${country}`)
-    .then(response => response.json())
-    .then(data => {
-      renderHtml(data[0]);
+// const getCountry = function (country) {
+//   fetch(`https://restcountries.com/v3.1/name/${country}`)
+//     .then(response => response.json())
+//     .then(data => {
+//       renderHtml(data[0]);
 
-      const neighbours = data[0].borders;
-      if (!neighbours) return;
+//       const neighbours = data[0].borders;
+//       if (!neighbours) return;
 
-      // UNABLE TO LOOP AND FETCH
-      // neighbours.forEach(countryCode => {
-      //   return fetch(`https://restcountries.com/v3.1/alpha/${countryCode}`);
-      // });
+//       // UNABLE TO LOOP AND FETCH
+//       // neighbours.forEach(countryCode => {
+//       //   return fetch(`https://restcountries.com/v3.1/alpha/${countryCode}`);
+//       // });
 
-      return fetch(`https://restcountries.com/v3.1/alpha/${neighbours[0]}`);
-    })
-    .then(response => response.json())
-    .then(data => renderHtml(data[0]))
-    .catch(err => {
-      console.log(`${err}`);
-      renderError(`Something went wrong ${err.message}`);
-    })
-    .finally(() => (countriesContainer.style.opacity = 1));
-};
+//       return fetch(`https://restcountries.com/v3.1/alpha/${neighbours[0]}`);
+//     })
+//     .then(response => response.json())
+//     .then(data => renderHtml(data[0]))
+//     .catch(err => {
+//       console.log(`${err}`);
+//       renderError(`Something went wrong ${err.message}`);
+//     })
+//     .finally(() => (countriesContainer.style.opacity = 1));
+// };
 
-btn.addEventListener('click', function () {
-  getCountry('kenya');
-});
+// btn.addEventListener('click', function () {
+//   getCountry('kenya');
+// });
 
 //Handling errors
 //There are two ways of handling errors in the fetch API
@@ -153,3 +153,35 @@ btn.addEventListener('click', function () {
 // .then() method is called if the promise is fulfilled
 // .catch() method is called if the promise is rejected
 // .finall() method is called whether promise is fullfilled or rejected
+
+//Throwing errors manually
+
+const getCountry = function (country) {
+  fetch(`https://restcountries.com/v3.1/name/${country}`)
+    .then(response => {
+      if (!response.ok) {
+        //we create the error that will propagate down to the catch method
+        throw new Error(`Page not found. (Error ${response.status})`);
+      }
+      return response.json();
+    })
+    .then(data => {
+      renderHtml(data[0]);
+
+      const neighbours = data[0].borders;
+      if (!neighbours) return;
+
+      return fetch(`https://restcountries.com/v3.1/alpha/${neighbours[0]}`);
+    })
+    .then(response => response.json())
+    .then(data => renderHtml(data[0]))
+    .catch(err => {
+      console.log(`${err}`);
+      renderError(`Something went wrong ${err.message}`);
+    })
+    .finally(() => (countriesContainer.style.opacity = 1));
+};
+
+btn.addEventListener('click', function () {
+  getCountry('kekfjrfrkfnya'); //non-existent country
+});
