@@ -265,54 +265,61 @@ TEST COORDINATES 2: -33.933, 18.474
 GOOD LUCK 😀
 */
 
-const getJSON = function (url, errorMsg = 'Country not found') {
-  return fetch(url).then(response => {
-    if (!response.ok) {
-      //we create the error that will propagate down to the catch method
-      throw new Error(`${errorMsg}. (Error ${response.status})`);
-    }
-    return response.json();
-  });
-};
+// const getJSON = function (url, errorMsg = 'Country not found') {
+//   return fetch(url).then(response => {
+//     if (!response.ok) {
+//       //we create the error that will propagate down to the catch method
+//       throw new Error(`${errorMsg}. (Error ${response.status})`);
+//     }
+//     return response.json();
+//   });
+// };
 
-const getCountry = function (country) {
-  getJSON(`https://restcountries.com/v3.1/name/${country}`)
-    .then(data => {
-      renderHtml(data[0]);
+// const getCountry = function (country) {
+//   getJSON(`https://restcountries.com/v3.1/name/${country}`)
+//     .then(data => {
+//       renderHtml(data[0]);
 
-      const neighbours = data[0].borders;
+//       const neighbours = data[0].borders;
 
-      //create a specific error if country has no neighbours
-      if (!neighbours) throw new Error('No neighbour for this one');
+//       //create a specific error if country has no neighbours
+//       if (!neighbours) throw new Error('No neighbour for this one');
 
-      // return getJSON(`https://restcountries.com/v3.1/alpha/rfrfrfsd`); Will catch this error too
-      return getJSON(`https://restcountries.com/v3.1/alpha/${neighbours[0]}`);
-    })
-    .then(data => renderHtml(data[0], 'neighbour'))
-    .catch(err => {
-      console.log(`${err}`);
-      renderError(` ${err.message}`);
-    })
-    .finally(() => (countriesContainer.style.opacity = 1));
-};
+//       // return getJSON(`https://restcountries.com/v3.1/alpha/rfrfrfsd`); Will catch this error too
+//       return getJSON(`https://restcountries.com/v3.1/alpha/${neighbours[0]}`);
+//     })
+//     .then(data => renderHtml(data[0], 'neighbour'))
+//     .catch(err => {
+//       console.log(`${err}`);
+//       renderError(` ${err.message}`);
+//     })
+//     .finally(() => (countriesContainer.style.opacity = 1));
+// };
 
-//Solution
-let auth = '55452033286555294869x94399';
-const whereAmI = function (lat, lng) {
-  fetch(`https://geocode.xyz/${lat},${lng}}?geoit=json&`)
-    .then(response => {
-      if (!response.ok) throw new Error('Too many requests');
-      return response.json();
-    })
-    .then(data => {
-      console.log(`You are in ${data.city}, ${data.country}`);
-      return data.country;
-    })
-    .catch(err => {
-      renderError(`${err.message}`);
-      return;
-    })
-    .then(country => getCountry(country));
-};
+// //Solution
+// let auth = '55452033286555294869x94399';
+// const whereAmI = function (lat, lng) {
+//   fetch(`https://geocode.xyz/${lat},${lng}}?geoit=json&`)
+//     .then(response => {
+//       if (!response.ok) throw new Error('Too many requests. \n');
+//       return response.json();
+//     })
+//     .then(data => {
+//       console.log(`You are in ${data.city}, ${data.country}`);
+//       return data.country;
+//     })
+//     .catch(err => {
+//       renderError(`${err.message}`);
+//       return;
+//     })
+//     .then(country => getCountry(country));
+// };
 
-whereAmI(19.037, 72.873);
+// whereAmI(19.037, 72.873);
+
+//Event loop in practice
+
+console.log('Test start');
+setTimeout(console.log('0 sec timer'), 0);
+Promise.resolve('Resolved promise').then(res => console.log(res));
+console.log('Test end');
