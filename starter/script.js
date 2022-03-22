@@ -319,7 +319,19 @@ GOOD LUCK 😀
 
 //Event loop in practice
 
-console.log('Test start');
-setTimeout(console.log('0 sec timer'), 0);
-Promise.resolve('Resolved promise').then(res => console.log(res));
-console.log('Test end');
+// console.log('Test start');
+// setTimeout(console.log('0 sec timer'), 0);
+// Promise.resolve('Resolved promise').then(res => console.log(res));
+// console.log('Test end');
+
+//Creating a Promise
+
+const lotteryPromise = new Promise(function (resolve, reject) {
+  if (Math.random() >= 0.5) {
+    resolve('You WON');
+  } else {
+    reject('You LOST');
+  }
+});
+
+lotteryPromise.then(res => console.log(res)).catch(err => console.error(err));
