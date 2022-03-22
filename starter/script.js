@@ -326,12 +326,42 @@ GOOD LUCK 😀
 
 //Creating a Promise
 
+// const lotteryPromise = new Promise(function (resolve, reject) {
+//   if (Math.random() >= 0.5) {
+//     resolve('You WON');
+//   } else {
+//     reject('You LOST');
+//   }
+// });
+
+// lotteryPromise.then(res => console.log(res)).catch(err => console.error(err));
+
+//The code above is not asynchroneous.
+//To make it asynchroneous, we can add a timer
 const lotteryPromise = new Promise(function (resolve, reject) {
-  if (Math.random() >= 0.5) {
-    resolve('You WON');
-  } else {
-    reject('You LOST');
-  }
+  console.log('Draw happening now');
+  setTimeout(() => {
+    if (Math.random() >= 0.5) {
+      resolve('You WON');
+    } else {
+      reject(new Error('You LOST'));
+    }
+  }, 2000);
 });
 
 lotteryPromise.then(res => console.log(res)).catch(err => console.error(err));
+
+//Promisyfying- Convert callback based asynchronous behavior to a promise based
+
+const wait = function (seconds) {
+  return new Promise(function (resolve) {
+    setTimeout(resolve, 2000);
+  });
+};
+
+wait(2)
+  .then(() => {
+    console.log('I waited for 2 seconds');
+    return wait(1);
+  })
+  .then(() => console.log('I waited for 1 second'));
