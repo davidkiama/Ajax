@@ -152,7 +152,7 @@ const request = fetch(`https://restcountries.com/v3.1/name/${countryName}`);
 //Recap:
 // .then() method is called if the promise is fulfilled
 // .catch() method is called if the promise is rejected
-// .finall() method is called whether promise is fullfilled or rejected
+// .finally() method is called whether promise is fullfilled or rejected
 
 //Throwing errors manually
 
@@ -184,15 +184,15 @@ const request = fetch(`https://restcountries.com/v3.1/name/${countryName}`);
 
 //Use of a helper function
 
-// const getJSON = function (url, errorMsg = 'Country not found') {
-//   return fetch(url).then(response => {
-//     if (!response.ok) {
-//       //we create the error that will propagate down to the catch method
-//       throw new Error(`${errorMsg}. (Error ${response.status})`);
-//     }
-//     return response.json();
-//   });
-// };
+const getJSON = function (url, errorMsg = 'Country not found') {
+  return fetch(url).then(response => {
+    if (!response.ok) {
+      //we create the error that will propagate down to the catch method
+      throw new Error(`${errorMsg}. (Error ${response.status})`);
+    }
+    return response.json();
+  });
+};
 
 // const getCountry = function (country) {
 //   getJSON(`https://restcountries.com/v3.1/name/${country}`)
@@ -336,36 +336,109 @@ GOOD LUCK 😀
 
 // lotteryPromise.then(res => console.log(res)).catch(err => console.error(err));
 
-//The code above is not asynchroneous.
-//To make it asynchroneous, we can add a timer
-const lotteryPromise = new Promise(function (resolve, reject) {
-  console.log('Draw happening now');
-  setTimeout(() => {
-    if (Math.random() >= 0.5) {
-      resolve('You WON');
-    } else {
-      reject(new Error('You LOST'));
-    }
-  }, 2000);
-});
+// //The code above is not asynchroneous.
+// //To make it asynchroneous, we can add a timer
+// const lotteryPromise = new Promise(function (resolve, reject) {
+//   console.log('Draw happening now');
+//   setTimeout(() => {
+//     if (Math.random() >= 0.5) {
+//       resolve('You WON');
+//     } else {
+//       reject(new Error('You LOST'));
+//     }
+//   }, 2000);
+// });
 
-lotteryPromise.then(res => console.log(res)).catch(err => console.error(err));
+// lotteryPromise.then(res => console.log(res)).catch(err => console.error(err));
 
-//Promisyfying- Convert callback based asynchronous behavior to a promise based
+// //Promisyfying- Convert callback based asynchronous behavior to a promise based
 
-const wait = function (seconds) {
-  return new Promise(function (resolve) {
-    setTimeout(resolve, 2000);
+// const wait = function (seconds) {
+//   return new Promise(function (resolve) {
+//     setTimeout(resolve, 2000);
+//   });
+// };
+
+// wait(2)
+//   .then(() => {
+//     console.log('I waited for 2 seconds');
+//     return wait(1);
+//   })
+//   .then(() => console.log('I waited for 1 second'));
+
+// // Created a fullfilled or rejected promise immediately
+// Promise.resolve('Resolved value').then(res => console.log(res));
+// Promise.reject(new Error('Rejected error')).catch(res => console.error(res));
+
+// Promisifying the Geolocation API
+// navigator.geolocation.getCurrentPosition(
+//   location => console.log(location),
+//   err => console.error(err)
+// );
+
+// const getLoc = function () {
+//   return new Promise(function (resolve, reject) {
+//     navigator.geolocation.getCurrentPosition(
+//       location => resolve(location),
+//       err => reject(err)
+//     );
+//   });
+// };
+
+//The above can be written as
+const getPosition = function () {
+  return new Promise(function (resolve, reject) {
+    navigator.geolocation.getCurrentPosition(resolve, reject);
   });
 };
 
-wait(2)
-  .then(() => {
-    console.log('I waited for 2 seconds');
-    return wait(1);
-  })
-  .then(() => console.log('I waited for 1 second'));
+// getPosition().then(res => console.log(res));
 
-// Created a fullfilled or rejected promise immediately
-Promise.resolve('Resolved value').then(res => console.log(res));
-Promise.reject(new Error('Rejected error')).catch(res => console.error(res));
+const getCountry = function (country) {
+  getJSON(`https://restcountries.com/v3.1/name/${country}`)
+    .then(data => {
+      renderHtml(data[0]);
+
+      const neighbours = data[0].borders;
+
+      //create a specific error if country has no neighbours
+      if (!neighbours) throw new Error('No neighbour for this one');
+
+      // return getJSON(`https://restcountries.com/v3.1/alpha/rfrfrfsd`); Will catch this error too
+      return getJSON(`https://restcountries.com/v3.1/alpha/${neighbours[0]}`);
+    })
+    .then(data => renderHtml(data[0], 'neighbour'))
+    .catch(err => {
+      console.log(`${err}`);
+      renderError(` ${err.message}`);
+    })
+    .finally(() => (countriesContainer.style.opacity = 1));
+};
+
+///////////////////////////////////////
+// Promises. Fetch API
+
+const whereAmI = function () {
+  getPosition()
+    .then(res => {
+      const { latitude: lat, longitude: lng } = res.coords;
+
+      return fetch(`https://geocode.xyz/${lat},${lng}}?geoit=json&`);
+    })
+
+    .then(response => {
+      if (!response.ok) throw new Error('Too many requests. \n');
+      return response.json();
+    })
+    .then(data => {
+      console.log(`You are in ${data.city}, ${data.country}`);
+      return data.country;
+    })
+    .catch(err => {
+      renderError(`${err.message}`);
+      return;
+    })
+    .then(country => getCountry(country));
+};
+
+btn.addEventListener('click', whereAmI);
