@@ -365,3 +365,7 @@ wait(2)
     return wait(1);
   })
   .then(() => console.log('I waited for 1 second'));
+
+// Created a fullfilled or rejected promise immediately
+Promise.resolve('Resolved value').then(res => console.log(res));
+Promise.reject(new Error('Rejected error')).catch(res => console.error(res));
