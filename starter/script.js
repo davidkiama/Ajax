@@ -74,7 +74,7 @@ const renderError = function (msg) {
 // Promises. Fetch API
 
 const countryName = 'kenya';
-const request = fetch(`https://restcountries.com/v3.1/name/${countryName}`);
+// const request = fetch(`https://restcountries.com/v3.1/name/${countryName}`);
 
 /*
 .then() method is available to all promises
@@ -184,15 +184,15 @@ const request = fetch(`https://restcountries.com/v3.1/name/${countryName}`);
 
 //Use of a helper function
 
-const getJSON = function (url, errorMsg = 'Country not found') {
-  return fetch(url).then(response => {
-    if (!response.ok) {
-      //we create the error that will propagate down to the catch method
-      throw new Error(`${errorMsg}. (Error ${response.status})`);
-    }
-    return response.json();
-  });
-};
+// const getJSON = function (url, errorMsg = 'Country not found') {
+//   return fetch(url).then(response => {
+//     if (!response.ok) {
+//       //we create the error that will propagate down to the catch method
+//       throw new Error(`${errorMsg}. (Error ${response.status})`);
+//     }
+//     return response.json();
+//   });
+// };
 
 // const getCountry = function (country) {
 //   getJSON(`https://restcountries.com/v3.1/name/${country}`)
@@ -385,60 +385,136 @@ GOOD LUCK 😀
 //   });
 // };
 
-//The above can be written as
-const getPosition = function () {
+// //The above can be written as
+// const getPosition = function () {
+//   return new Promise(function (resolve, reject) {
+//     navigator.geolocation.getCurrentPosition(resolve, reject);
+//   });
+// };
+
+// // getPosition().then(res => console.log(res));
+
+// const getCountry = function (country) {
+//   getJSON(`https://restcountries.com/v3.1/name/${country}`)
+//     .then(data => {
+//       renderHtml(data[0]);
+
+//       const neighbours = data[0].borders;
+
+//       //create a specific error if country has no neighbours
+//       if (!neighbours) throw new Error('No neighbour for this one');
+
+//       // return getJSON(`https://restcountries.com/v3.1/alpha/rfrfrfsd`); Will catch this error too
+//       return getJSON(`https://restcountries.com/v3.1/alpha/${neighbours[0]}`);
+//     })
+//     .then(data => renderHtml(data[0], 'neighbour'))
+//     .catch(err => {
+//       console.log(`${err}`);
+//       renderError(` ${err.message}`);
+//     })
+//     .finally(() => (countriesContainer.style.opacity = 1));
+// };
+
+// ///////////////////////////////////////
+// // Promises. Fetch API
+
+// const whereAmI = function () {
+//   getPosition()
+//     .then(res => {
+//       const { latitude: lat, longitude: lng } = res.coords;
+
+//       return fetch(`https://geocode.xyz/${lat},${lng}}?geoit=json&`);
+//     })
+
+//     .then(response => {
+//       if (!response.ok) throw new Error('Too many requests. \n');
+//       return response.json();
+//     })
+//     .then(data => {
+//       console.log(`You are in ${data.city}, ${data.country}`);
+//       return data.country;
+//     })
+//     .catch(err => {
+//       renderError(`${err.message}`);
+//       return;
+//     })
+//     .then(country => getCountry(country));
+// };
+
+// btn.addEventListener('click', whereAmI);
+
+///////////////////////////////////////
+// Coding Challenge #2
+
+/* 
+Build the image loading functionality that I just showed you on the screen.
+
+Tasks are not super-descriptive this time, so that you can figure out 
+some stuff on your own. Pretend you're working on your own 😉
+
+PART 1
+1. Create a function 'createImage' which receives imgPath as an input. 
+This function returns a promise which creates a new image 
+(use document.createElement('img')) and sets the .src attribute to 
+the provided image path. When the image is done loading, append it 
+to the DOM element with the 'images' class, and resolve the promise. 
+The fulfilled value should be the image element itself. In case there 
+is an error loading the image ('error' event), reject the promise.
+
+If this part is too tricky for you, just watch the first part of the solution.
+
+PART 2
+2. Consume the promise using .then and also add an error handler;
+3. After the image has loaded, pause execution for 2 seconds using 
+the wait function we created earlier;
+4. After the 2 seconds have passed, hide the current image (
+  set display to 'none'), and load a second image (HINT: Use the 
+    image element returned by the createImage promise to hide the current 
+    image. You will need a global variable for that 😉);
+5. After the second image has loaded, pause execution for 2 seconds again;
+6. After the 2 seconds have passed, hide the current image.
+
+TEST DATA: Images in the img folder. Test the error handler by passing a wrong 
+image path. Set the network speed to 'Fast 3G' in the dev tools Network tab, 
+otherwise images load too fast.
+
+GOOD LUCK 😀
+*/
+
+// Solution
+const wait = function (seconds) {
+  return new Promise(function (resolve) {
+    setTimeout(resolve, seconds * 1000);
+  });
+};
+const images = document.querySelector('.images');
+
+const createImage = function (imgPath) {
   return new Promise(function (resolve, reject) {
-    navigator.geolocation.getCurrentPosition(resolve, reject);
+    let imgElement = document.createElement('img');
+    imgElement.src = imgPath;
+
+    imgElement.addEventListener('load', function () {
+      images.insertAdjacentElement('beforeend', imgElement);
+
+      resolve(imgElement);
+    });
+
+    imgElement.addEventListener('error', function () {
+      reject(new Error('Image NOT found'));
+    });
   });
 };
 
-// getPosition().then(res => console.log(res));
+let currentImg;
+createImage('img/img-1.jpg')
+  .then(img => {
+    currentImg = img;
+    return wait(2);
+  })
+  .then(() => {
+    currentImg.style.display = 'None';
+    return createImage('img/img-2.jpg');
+  })
 
-const getCountry = function (country) {
-  getJSON(`https://restcountries.com/v3.1/name/${country}`)
-    .then(data => {
-      renderHtml(data[0]);
-
-      const neighbours = data[0].borders;
-
-      //create a specific error if country has no neighbours
-      if (!neighbours) throw new Error('No neighbour for this one');
-
-      // return getJSON(`https://restcountries.com/v3.1/alpha/rfrfrfsd`); Will catch this error too
-      return getJSON(`https://restcountries.com/v3.1/alpha/${neighbours[0]}`);
-    })
-    .then(data => renderHtml(data[0], 'neighbour'))
-    .catch(err => {
-      console.log(`${err}`);
-      renderError(` ${err.message}`);
-    })
-    .finally(() => (countriesContainer.style.opacity = 1));
-};
-
-///////////////////////////////////////
-// Promises. Fetch API
-
-const whereAmI = function () {
-  getPosition()
-    .then(res => {
-      const { latitude: lat, longitude: lng } = res.coords;
-
-      return fetch(`https://geocode.xyz/${lat},${lng}}?geoit=json&`);
-    })
-
-    .then(response => {
-      if (!response.ok) throw new Error('Too many requests. \n');
-      return response.json();
-    })
-    .then(data => {
-      console.log(`You are in ${data.city}, ${data.country}`);
-      return data.country;
-    })
-    .catch(err => {
-      renderError(`${err.message}`);
-      return;
-    })
-    .then(country => getCountry(country));
-};
-
-btn.addEventListener('click', whereAmI);
+  .catch(err => console.error(err));
