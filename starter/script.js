@@ -35,7 +35,7 @@ const renderHtml = function (data, className = '') {
 const renderError = function (msg) {
   countriesContainer.insertAdjacentText('beforeend', msg);
   //refactor  code below to have it in the .finally()
-  // countriesContainer.style.opacity = 1; //For smooth transition
+  countriesContainer.style.opacity = 1; //For smooth transition
 };
 
 // const getCountry = function (countryName) {
@@ -526,22 +526,57 @@ const getPosition = function () {
 };
 
 // Consuming Promises with async await
+// const whereAmI = async function () {
+//   // get position
+//   const pos = await getPosition();
+//   const { latitude: lat, longitude: lng } = pos.coords;
+
+//   // get country
+//   const geoRes = await fetch(`https://geocode.xyz/${lat},${lng}}?geoit=json&`);
+//   const geoData = await geoRes.json();
+//   console.log(geoData);
+
+//   // render country
+//   const res = await fetch(
+//     `https://restcountries.com/v3.1/name/${geoData.country}`
+//   );
+//   const data = await res.json();
+//   renderHtml(data[0]);
+// };
+
+// // Under the hood we are actually consuming the promise
+// // with .then() method
+
+// whereAmI();
+
+//Error handling when using async await using try catch
 const whereAmI = async function () {
-  // get position
-  const pos = await getPosition();
-  const { latitude: lat, longitude: lng } = pos.coords;
+  try {
+    // get position
+    const pos = await getPosition();
+    const { latitude: lat, longitude: lng } = pos.coords;
 
-  // get country
-  const geoRes = await fetch(`https://geocode.xyz/${lat},${lng}}?geoit=json&`);
-  const geoData = await geoRes.json();
-  console.log(geoData);
+    // get country
+    const geoRes = await fetch(
+      `https://geocode.xyz/${lat},${lng}}?geoit=json&`
+    );
+    //fetch does reject 404, 403. We need to handle that
+    if (!geoRes.ok) throw new Error('Could not get location');
+    const geoData = await geoRes.json();
 
-  // render country
-  const res = await fetch(
-    `https://restcountries.com/v3.1/name/${geoData.country}`
-  );
-  const data = await res.json();
-  renderHtml(data[0]);
+    // render country
+    const res = await fetch(
+      `https://restcountries.com/v3.1/name/${geoData.country}`
+    );
+    //fetch does reject 404, 403. We need to handle that
+    if (!res.ok) throw new Error('Could not get country');
+
+    const data = await res.json();
+    renderHtml(data[0]);
+  } catch (err) {
+    console.log(err);
+    renderError(err.message);
+  }
 };
 
 // Under the hood we are actually consuming the promise
