@@ -29,7 +29,7 @@ const renderHtml = function (data, className = '') {
 
   countriesContainer.insertAdjacentHTML('beforeend', country);
   //refactor  code below to have it in the .finally()
-  // countriesContainer.style.opacity = 1; //For smooth transition
+  countriesContainer.style.opacity = 1; //For smooth transition
 };
 
 const renderError = function (msg) {
@@ -481,40 +481,70 @@ otherwise images load too fast.
 GOOD LUCK 😀
 */
 
-// Solution
-const wait = function (seconds) {
-  return new Promise(function (resolve) {
-    setTimeout(resolve, seconds * 1000);
-  });
-};
-const images = document.querySelector('.images');
+// // Solution
+// const wait = function (seconds) {
+//   return new Promise(function (resolve) {
+//     setTimeout(resolve, seconds * 1000);
+//   });
+// };
+// const images = document.querySelector('.images');
 
-const createImage = function (imgPath) {
+// const createImage = function (imgPath) {
+//   return new Promise(function (resolve, reject) {
+//     let imgElement = document.createElement('img');
+//     imgElement.src = imgPath;
+
+//     imgElement.addEventListener('load', function () {
+//       images.insertAdjacentElement('beforeend', imgElement);
+
+//       resolve(imgElement);
+//     });
+
+//     imgElement.addEventListener('error', function () {
+//       reject(new Error('Image NOT found'));
+//     });
+//   });
+// };
+
+// let currentImg;
+// createImage('img/img-1.jpg')
+//   .then(img => {
+//     currentImg = img;
+//     return wait(2);
+//   })
+//   .then(() => {
+//     currentImg.style.display = 'None';
+//     return createImage('img/img-2.jpg');
+//   })
+
+//   .catch(err => console.error(err));
+
+const getPosition = function () {
   return new Promise(function (resolve, reject) {
-    let imgElement = document.createElement('img');
-    imgElement.src = imgPath;
-
-    imgElement.addEventListener('load', function () {
-      images.insertAdjacentElement('beforeend', imgElement);
-
-      resolve(imgElement);
-    });
-
-    imgElement.addEventListener('error', function () {
-      reject(new Error('Image NOT found'));
-    });
+    navigator.geolocation.getCurrentPosition(resolve, reject);
   });
 };
 
-let currentImg;
-createImage('img/img-1.jpg')
-  .then(img => {
-    currentImg = img;
-    return wait(2);
-  })
-  .then(() => {
-    currentImg.style.display = 'None';
-    return createImage('img/img-2.jpg');
-  })
+// Consuming Promises with async await
+const whereAmI = async function () {
+  // get position
+  const pos = await getPosition();
+  const { latitude: lat, longitude: lng } = pos.coords;
 
-  .catch(err => console.error(err));
+  // get country
+  const geoRes = await fetch(`https://geocode.xyz/${lat},${lng}}?geoit=json&`);
+  const geoData = await geoRes.json();
+  console.log(geoData);
+
+  // render country
+  const res = await fetch(
+    `https://restcountries.com/v3.1/name/${geoData.country}`
+  );
+  const data = await res.json();
+  renderHtml(data[0]);
+};
+
+// Under the hood we are actually consuming the promise
+// with .then() method
+
+whereAmI();
