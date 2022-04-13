@@ -622,3 +622,37 @@ resolve, or rejected when any Promise is rejected.
 // };
 
 // get3Countries('kenya', 'mexico', 'germany');
+
+// Other Promise Combinators_ race, allSettled and any
+
+//Promise.race()
+// Takes in an array of promises and will shortcircuit when
+// one promise is fullfilled(resolved/rejected)
+
+//Will return the promise that was resolved the fastest
+
+(async function () {
+  const [data] = await Promise.race([
+    getJSON(`https://restcountries.com/v3.1/name/kenya`),
+    getJSON(`https://restcountries.com/v3.1/name/madagascar`),
+    getJSON(`https://restcountries.com/v3.1/name/brazil`),
+  ]);
+  console.log(data);
+})();
+
+//We can implement this when we want to exit a promise call if it takes too long
+
+const timeout = function (sec) {
+  return new Promise(function (_, reject) {
+    setTimeout(function () {
+      reject(new Error('Took too long'));
+    }, sec * 1000);
+  });
+};
+
+Promise.race([
+  getJSON(`https://restcountries.com/v3.1/name/brazil`),
+  timeout(1),
+])
+  .then(res => console.log(res))
+  .catch(err => console.error(err));
