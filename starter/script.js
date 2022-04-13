@@ -184,15 +184,15 @@ const countryName = 'kenya';
 
 //Use of a helper function
 
-// const getJSON = function (url, errorMsg = 'Country not found') {
-//   return fetch(url).then(response => {
-//     if (!response.ok) {
-//       //we create the error that will propagate down to the catch method
-//       throw new Error(`${errorMsg}. (Error ${response.status})`);
-//     }
-//     return response.json();
-//   });
-// };
+const getJSON = function (url, errorMsg = 'Country not found') {
+  return fetch(url).then(response => {
+    if (!response.ok) {
+      //we create the error that will propagate down to the catch method
+      throw new Error(`${errorMsg}. (Error ${response.status})`);
+    }
+    return response.json();
+  });
+};
 
 // const getCountry = function (country) {
 //   getJSON(`https://restcountries.com/v3.1/name/${country}`)
@@ -582,4 +582,43 @@ const whereAmI = async function () {
 // Under the hood we are actually consuming the promise
 // with .then() method
 
-whereAmI();
+// whereAmI();
+
+//Running promisses in parallel
+// This can be accomplished using Promise.all()
+/*
+Creates a Promise that is resolved with an 
+array of results when all of the provided Promises 
+resolve, or rejected when any Promise is rejected.
+*/
+
+//This will make three request;one after another
+// const getAll = async function (c1, c2, c3) {
+//   try {
+//     const [data1] = await getJSON(`https://restcountries.com/v3.1/name/${c1}`);
+//     const [data2] = await getJSON(`https://restcountries.com/v3.1/name/${c2}`);
+//     const [data3] = await getJSON(`https://restcountries.com/v3.1/name/${c3}`);
+
+//     console.log(data1.capital, data2.capital, data3.capital);
+//   } catch (err) {
+//     console.log(err);
+//   }
+// };
+
+// getAll('kenya', 'mexico', 'germany');
+
+// const get3Countries = async function (c1, c2, c3) {
+//   try {
+//     const data = await Promise.all([
+//       getJSON(`https://restcountries.com/v3.1/name/${c1}`),
+//       getJSON(`https://restcountries.com/v3.1/name/${c2}`),
+//       getJSON(`https://restcountries.com/v3.1/name/${c3}`),
+//     ]);
+
+//     console.log(data.map(d => d[0].capital[0]));
+//   } catch (err) {
+//     console.log(err);
+//   }
+// };
+
+// get3Countries('kenya', 'mexico', 'germany');
