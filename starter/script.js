@@ -631,28 +631,112 @@ resolve, or rejected when any Promise is rejected.
 
 //Will return the promise that was resolved the fastest
 
-(async function () {
-  const [data] = await Promise.race([
-    getJSON(`https://restcountries.com/v3.1/name/kenya`),
-    getJSON(`https://restcountries.com/v3.1/name/madagascar`),
-    getJSON(`https://restcountries.com/v3.1/name/brazil`),
-  ]);
-  console.log(data);
-})();
+// (async function () {
+//   const [data] = await Promise.race([
+//     getJSON(`https://restcountries.com/v3.1/name/kenya`),
+//     getJSON(`https://restcountries.com/v3.1/name/madagascar`),
+//     getJSON(`https://restcountries.com/v3.1/name/brazil`),
+//   ]);
+//   console.log(data);
+// })();
 
-//We can implement this when we want to exit a promise call if it takes too long
+// //We can implement this when we want to exit a promise call if it takes too long
 
-const timeout = function (sec) {
-  return new Promise(function (_, reject) {
-    setTimeout(function () {
-      reject(new Error('Took too long'));
-    }, sec * 1000);
+// const timeout = function (sec) {
+//   return new Promise(function (_, reject) {
+//     setTimeout(function () {
+//       reject(new Error('Took too long'));
+//     }, sec * 1000);
+//   });
+// };
+
+// Promise.race([
+//   getJSON(`https://restcountries.com/v3.1/name/brazil`),
+//   timeout(1),
+// ])
+//   .then(res => console.log(res))
+//   .catch(err => console.error(err));
+
+///////////////////////////////////////
+// Coding Challenge #3
+
+// Solution
+const wait = function (seconds) {
+  return new Promise(function (resolve) {
+    setTimeout(resolve, seconds * 1000);
+  });
+};
+const images = document.querySelector('.images');
+
+const createImage = function (imgPath) {
+  return new Promise(function (resolve, reject) {
+    let imgElement = document.createElement('img');
+    imgElement.src = imgPath;
+
+    imgElement.addEventListener('load', function () {
+      images.insertAdjacentElement('beforeend', imgElement);
+
+      resolve(imgElement);
+    });
+
+    imgElement.addEventListener('error', function () {
+      reject(new Error('Image NOT found'));
+    });
   });
 };
 
-Promise.race([
-  getJSON(`https://restcountries.com/v3.1/name/brazil`),
-  timeout(1),
-])
-  .then(res => console.log(res))
-  .catch(err => console.error(err));
+/* 
+PART 1
+Write an async function 'loadNPause' that recreates Coding Challenge 
+#2, this time using async/await (only the part where the promise is consumed). 
+Compare the two versions, think about the big differences, and see which one you like more.
+Don't forget to test the error handler, and to set the network speed to 'Fast 3G' in the dev tools Network tab.
+
+PART 2
+1. Create an async function 'loadAll' that receives an array of image paths 'imgArr';
+2. Use .map to loop over the array, to load all the images with the 'createImage' 
+    function (call the resulting array 'imgs')
+3. Check out the 'imgs' array in the console! Is it like you expected?
+4. Use a promise combinator function to actually get the images from the array 😉
+5. Add the 'paralell' class to all the images (it has some CSS styles).
+
+TEST DATA: ['img/img-1.jpg', 'img/img-2.jpg', 'img/img-3.jpg']. To test, turn off the 'loadNPause' function.
+
+GOOD LUCK 😀
+*/
+
+const loadNPause = async function () {
+  try {
+    let img = await createImage('img/img-1.jpg');
+    await wait(2);
+    img.style.display = 'None';
+
+    img = await createImage('img/img-2.jpg');
+    await wait(2);
+    img.style.display = 'None';
+
+    img = await createImage('img/img-3.jpg');
+    await wait(2);
+    img.style.display = 'None';
+  } catch (err) {
+    console.error(err);
+  }
+};
+
+// loadNPause();
+
+const loadAll = async function (imgArr) {
+  try {
+    const images = await Promise.all(
+      imgArr.map(async img => {
+        return await createImage(img);
+      })
+    );
+    console.log(images);
+    images.forEach(imgEl => imgEl.classList.add('parallel'));
+  } catch (err) {
+    console.error(err);
+  }
+};
+
+loadAll(['img/img-1.jpg', 'img/img-2.jpg', 'img/img-3.jpg']);
